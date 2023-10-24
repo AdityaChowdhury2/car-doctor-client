@@ -1,13 +1,14 @@
+import toast from 'react-hot-toast';
 import authImage from '../../assets/images/login/login.svg';
+import { BiLogoFacebook } from 'react-icons/bi';
 import { FaLinkedinIn } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
-import { BiLogoFacebook } from 'react-icons/bi';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import toast from 'react-hot-toast';
-const Login = () => {
-	const { loginUser } = useAuth();
-	const handleLogin = async e => {
+
+const SignUp = () => {
+	const { createUser, updateUserProfile, user } = useAuth();
+	const handleSignUp = async e => {
 		try {
 			e.preventDefault();
 			const formData = new FormData(e.target);
@@ -15,12 +16,20 @@ const Login = () => {
 			for (const data of formData.entries()) {
 				user[data[0]] = data[1];
 			}
-			console.log(user);
-			const response = await loginUser(user);
-			console.log(response.user);
+			const response = await createUser(user);
+			try {
+				if (response.user) {
+					await updateUserProfile(user);
+					toast.success('User name updated');
+				}
+			} catch (err) {
+				console.log(err);
+			}
 			toast.success('User created successfully');
 		} catch (err) {
-			toast.error("User credentials doesn't match");
+			toast.error('Error in creating user');
+		} finally {
+			console.log(user);
 		}
 	};
 
@@ -31,10 +40,22 @@ const Login = () => {
 					<img src={authImage} alt="" className=" " />
 				</div>
 				<div className="card flex-auto shadow-2xl w-full lg:p-20 md:p-8 p-4 lg:w-3/5">
-					<form className="card-body p-0 w-full" onSubmit={handleLogin}>
+					<form className="card-body p-0 w-full" onSubmit={handleSignUp}>
 						<h1 className="text-center font-bold text-5xl text-stone-600">
-							Login
+							Sign Up
 						</h1>
+						<div className="form-control">
+							<label className="label">
+								<span className="label-text">Name</span>
+							</label>
+							<input
+								type="name"
+								placeholder="name"
+								name="name"
+								className="input input-bordered border-gray-300 hover:outline-gray-300 focus:outline-gray-300"
+								required
+							/>
+						</div>
 						<div className="form-control">
 							<label className="label">
 								<span className="label-text">Email</span>
@@ -61,7 +82,7 @@ const Login = () => {
 						</div>
 						<div className="form-control mt-6">
 							<button className="bg-orange-500 text-orange-50 btn hover:border-transparent border-transparent hover:bg-orange-600 transition-colors capitalize text-lg">
-								Login
+								Sign Up
 							</button>
 						</div>
 					</form>
@@ -79,9 +100,9 @@ const Login = () => {
 							</button>
 						</div>
 						<p>
-							Create New Account?{' '}
-							<Link to={'/register'} className="text-orange-500 font-bold">
-								Sign Up
+							Have an account?{' '}
+							<Link to={'/login'} className="text-orange-500 font-bold">
+								Sign In
 							</Link>
 						</p>
 					</div>
@@ -91,4 +112,4 @@ const Login = () => {
 	);
 };
 
-export default Login;
+export default SignUp;
